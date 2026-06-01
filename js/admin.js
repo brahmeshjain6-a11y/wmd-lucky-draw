@@ -71,15 +71,15 @@
   }
 
   function apiRequest(payload) {
-    if (!CONFIG.SCRIPT_URL || CONFIG.SCRIPT_URL.includes("YOUR_GOOGLE")) {
-      return Promise.reject(new Error("Script URL not configured."));
-    }
-    return fetch(CONFIG.SCRIPT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...payload, token: authToken }),
-    }).then(r => r.json());
+  if (!CONFIG.SCRIPT_URL || CONFIG.SCRIPT_URL.includes("YOUR_GOOGLE")) {
+    return Promise.reject(new Error("Script URL not configured."));
   }
+  return fetch(CONFIG.SCRIPT_URL, {
+    method: "POST",
+    redirect: "follow",
+    body: JSON.stringify({ ...payload, token: authToken }),
+  }).then(r => r.json());
+}
 
   /* ════════════════════════════════
      LOGIN / LOGOUT
