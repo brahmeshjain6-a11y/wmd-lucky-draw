@@ -144,7 +144,8 @@ const WheelSpin = (function () {
       currentAngle = 0;
       const modal = MODAL();
       if (modal) { modal.hidden = false; }
-      drawWheel(0);
+      // Small delay to let modal render before drawing
+      setTimeout(() => drawWheel(0), 100);
     },
     spin(winnerIndex, onDone) {
       spin(winnerIndex, onDone);
