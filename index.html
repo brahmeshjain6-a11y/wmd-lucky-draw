@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Marketing Day — Lucky Draw 2026</title>
+
+  <!-- Google Fonts: Playfair Display + DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════
+       CANVAS: Particle / Star Background
+  ══════════════════════════════════════ -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- ══════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════ -->
+  <header class="site-header">
+    <div class="logo-wrap">
+      <!-- Replace src with your real logo -->
+      <div class="logo-placeholder">
+        <span class="logo-icon">✦</span>
+        <span class="logo-text">WMD 2026</span>
+      </div>
+    </div>
+
+    <nav class="header-nav">
+      <a href="index.html" class="nav-link active">Register</a>
+      <a href="admin.html" class="nav-link">Organiser</a>
+    </nav>
+  </header>
+
+  <!-- ══════════════════════════════════════
+       HERO SECTION
+  ══════════════════════════════════════ -->
+  <main>
+    <section class="hero">
+      <div class="hero-badge">🌍 Annual Event · 2026</div>
+      <h1 class="hero-title">
+        World<br />
+        <em>Marketing</em><br />
+        Day
+      </h1>
+      <p class="hero-sub">Join the celebration &amp; enter our exclusive lucky draw.<br />One grand winner. Endless possibilities.</p>
+
+      <!-- Live counter -->
+      <div class="live-counter" id="liveCounterWrap">
+        <span class="pulse-dot"></span>
+        <span id="liveCount">—</span>&nbsp;entries so far
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         REGISTRATION CARD
+    ══════════════════════════════════════ -->
+    <section class="card-section">
+      <div class="reg-card" id="regCard">
+        <div class="card-tag">Lucky Draw Entry</div>
+        <h2 class="card-title">Secure Your Spot</h2>
+        <p class="card-desc">Fill in your details below. One entry per email address.</p>
+
+        <form id="regForm" novalidate>
+          <!-- Full Name -->
+          <div class="field-group" id="nameGroup">
+            <label for="fullName">Full Name</label>
+            <div class="input-wrap">
+              <svg class="field-icon" viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                placeholder="e.g. Alex Johnson"
+                autocomplete="name"
+                maxlength="100"
+                required
+              />
+            </div>
+            <span class="field-error" id="nameError"></span>
+          </div>
+
+          <!-- Email -->
+          <div class="field-group" id="emailGroup">
+            <label for="emailAddr">Email Address</label>
+            <div class="input-wrap">
+              <svg class="field-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+              <input
+                type="email"
+                id="emailAddr"
+                name="emailAddr"
+                placeholder="you@company.com"
+                autocomplete="email"
+                maxlength="200"
+                required
+              />
+            </div>
+            <span class="field-error" id="emailError"></span>
+          </div>
+
+          <!-- Submit -->
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span class="btn-label">Enter the Draw</span>
+            <span class="btn-spinner" hidden>
+              <svg viewBox="0 0 24 24" class="spin"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="40 60"/></svg>
+            </span>
+          </button>
+        </form>
+
+        <!-- Status messages -->
+        <div class="status-msg success-msg" id="successMsg" hidden>
+          <span class="status-icon">🎉</span>
+          <div>
+            <strong>You're in!</strong>
+            <p>Your entry has been recorded. Good luck!</p>
+          </div>
+        </div>
+        <div class="status-msg error-msg" id="errorMsg" hidden>
+          <span class="status-icon">⚠️</span>
+          <div>
+            <strong>Something went wrong</strong>
+            <p id="errorText">Please try again.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         FOOTER
+    ══════════════════════════════════════ -->
+    <footer class="site-footer">
+      <p>© 2026 YourBrand · World Marketing Day Lucky Draw</p>
+      <p class="footer-note">By entering, you agree to our event terms &amp; privacy policy.</p>
+    </footer>
+  </main>
+
+  <!-- Confetti canvas (shared) -->
+  <canvas id="confettiCanvas" style="position:fixed;inset:0;pointer-events:none;z-index:9999;"></canvas>
+
+  <!-- ══════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════ -->
+  <script src="js/config.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

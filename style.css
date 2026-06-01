@@ -1,0 +1,391 @@
+/* ════════════════════════════════════════════════════════════
+   WORLD MARKETING DAY — LUCKY DRAW
+   style.css  |  Shared Styles
+   Aesthetic: Art-Deco Gold × Deep Midnight Blue
+   ════════════════════════════════════════════════════════════ */
+
+/* ── CSS Variables ── */
+
+:root {
+  --gold:        #C9A84C;
+  --gold-light:  #E8C96C;
+  --gold-dim:    #8A6E2F;
+  --night:       #080C18;
+  --deep:        #0D1426;
+  --card-bg:     rgba(13, 20, 40, 0.82);
+  --border:      rgba(201, 168, 76, 0.25);
+  --border-glow: rgba(201, 168, 76, 0.55);
+  --text:        #E8E2D4;
+  --text-muted:  rgba(232, 226, 212, 0.55);
+  --error:       #FF6B6B;
+  --success:     #5AC89A;
+  --radius-card: 18px;
+  --radius-btn:  50px;
+  --shadow:      0 8px 48px rgba(0,0,0,0.55);
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --transition:   0.28s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--night);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── Background Canvas ── */
+#bgCanvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── All content above canvas ── */
+header, main, .login-gate, .admin-dash { position: relative; z-index: 1; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--deep); }
+::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+
+/* ════════════════════════════════
+   HEADER
+════════════════════════════════ */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  background: rgba(8,12,24,0.65);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--gold-light);
+  letter-spacing: 0.04em;
+}
+.logo-placeholder.small { font-size: 0.95rem; }
+.logo-icon { font-size: 1.3em; }
+
+.header-nav { display: flex; gap: 1.2rem; }
+.nav-link {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.25rem 0;
+  border-bottom: 2px solid transparent;
+  transition: var(--transition);
+}
+.nav-link:hover, .nav-link.active {
+  color: var(--gold-light);
+  border-bottom-color: var(--gold);
+}
+
+/* ════════════════════════════════
+   HERO SECTION
+════════════════════════════════ */
+.hero {
+  text-align: center;
+  padding: 5rem 1.5rem 3rem;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.hero-badge {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid var(--border-glow);
+  border-radius: 50px;
+  padding: 0.35rem 1.1rem;
+  margin-bottom: 1.8rem;
+  background: rgba(201,168,76,0.07);
+  animation: fadeDown 0.7s ease both;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 10vw, 7.5rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  animation: fadeDown 0.7s 0.12s ease both;
+}
+.hero-title em {
+  font-style: italic;
+  color: var(--gold-light);
+  /* Art-deco underline */
+  background: linear-gradient(135deg, var(--gold), var(--gold-light) 60%, var(--gold-dim));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  margin-top: 1.6rem;
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  animation: fadeDown 0.7s 0.24s ease both;
+}
+
+/* ── Live Counter ── */
+.live-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1.8rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  animation: fadeDown 0.7s 0.36s ease both;
+}
+
+.pulse-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(90,200,154,.6); }
+  50%       { box-shadow: 0 0 0 6px rgba(90,200,154,0); }
+}
+
+/* ════════════════════════════════
+   REGISTRATION CARD
+════════════════════════════════ */
+.card-section {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 1.5rem 4rem;
+  animation: fadeUp 0.7s 0.4s ease both;
+}
+
+.reg-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 2.8rem 2.5rem;
+  max-width: 480px;
+  width: 100%;
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow), 0 0 0 1px rgba(201,168,76,0.08) inset;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Art-deco corner accent */
+.reg-card::before, .reg-card::after {
+  content: '';
+  position: absolute;
+  width: 60px; height: 60px;
+  border-color: var(--gold-dim);
+  border-style: solid;
+  opacity: 0.45;
+}
+.reg-card::before { top: 12px; left: 12px; border-width: 2px 0 0 2px; border-radius: 6px 0 0 0; }
+.reg-card::after  { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; border-radius: 0 0 6px 0; }
+
+.card-tag {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.7rem;
+}
+.card-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+.card-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 1.8rem;
+  line-height: 1.55;
+}
+
+/* ── Form Fields ── */
+.field-group {
+  margin-bottom: 1.35rem;
+}
+.field-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.45rem;
+}
+
+.input-wrap {
+  position: relative;
+}
+.field-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px; height: 18px;
+  fill: var(--text-muted);
+  transition: fill var(--transition);
+  pointer-events: none;
+}
+
+.input-wrap input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.78rem 1rem 0.78rem 2.6rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+.input-wrap input::placeholder { color: rgba(232,226,212,0.25); }
+.input-wrap input:focus {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.05);
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+}
+.input-wrap input:focus + .field-icon, /* can't do this, icon is before input */
+.input-wrap:focus-within .field-icon { fill: var(--gold); }
+
+.field-group.invalid .input-wrap input {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px rgba(255,107,107,0.12);
+}
+
+.field-error {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--error);
+  margin-top: 0.35rem;
+  min-height: 1em;
+}
+
+/* ── Submit Button ── */
+.btn-submit {
+  width: 100%;
+  background: linear-gradient(135deg, var(--gold-dim), var(--gold) 50%, var(--gold-light));
+  border: none;
+  border-radius: var(--radius-btn);
+  padding: 0.9rem 2rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--night);
+  cursor: pointer;
+  transition: opacity var(--transition), transform var(--transition), box-shadow var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.btn-submit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.2s;
+}
+.btn-submit:hover:not(:disabled)::after { background: rgba(255,255,255,0.1); }
+.btn-submit:active:not(:disabled) { transform: scale(0.98); }
+.btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.btn-spinner .spin {
+  width: 20px; height: 20px;
+  animation: rotate 0.8s linear infinite;
+}
+@keyframes rotate { to { transform: rotate(360deg); } }
+
+/* ── Status Messages ── */
+.status-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  padding: 1rem 1.2rem;
+  border-radius: 10px;
+  margin-top: 1.2rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  animation: fadeUp 0.4s ease;
+}
+.status-msg strong { display: block; margin-bottom: 0.15rem; }
+.status-msg p { color: var(--text-muted); }
+.status-icon { font-size: 1.35rem; flex-shrink: 0; margin-top: 2px; }
+.success-msg { background: rgba(90,200,154,0.1); border: 1px solid rgba(90,200,154,0.3); }
+.error-msg   { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3); }
+
+/* ════════════════════════════════
+   FOOTER
+════════════════════════════════ */
+.site-footer {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  line-height: 1.7;
+}
+.footer-note { opacity: 0.6; margin-top: 0.25rem; }
+
+/* ════════════════════════════════
+   ANIMATIONS
+════════════════════════════════ */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+
+/* ════════════════════════════════
+   RESPONSIVE
+════════════════════════════════ */
+@media (max-width: 520px) {
+  .hero { padding: 3.5rem 1rem 2rem; }
+  .reg-card { padding: 2rem 1.4rem; }
+  .site-header { padding: 1rem 1.2rem; }
+}

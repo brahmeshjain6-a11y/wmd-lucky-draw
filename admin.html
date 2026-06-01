@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Organiser Panel — World Marketing Day Lucky Draw</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body class="admin-body">
+
+  <canvas id="bgCanvas"></canvas>
+  <canvas id="confettiCanvas" style="position:fixed;inset:0;pointer-events:none;z-index:9999;"></canvas>
+
+  <!-- ══════════════════════════════════════
+       LOGIN GATE
+  ══════════════════════════════════════ -->
+  <div id="loginGate" class="login-gate">
+    <div class="login-card">
+      <div class="logo-placeholder small">
+        <span class="logo-icon">✦</span>
+        <span class="logo-text">WMD 2026</span>
+      </div>
+      <h2>Organiser Access</h2>
+      <p>Enter the event password to continue.</p>
+
+      <div class="field-group">
+        <label for="adminPass">Password</label>
+        <div class="input-wrap">
+          <svg class="field-icon" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.8-2.2-5-5-5S7 3.2 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.7 1.4-3.1 3.1-3.1 1.7 0 3.1 1.4 3.1 3.1v2z"/></svg>
+          <input type="password" id="adminPass" placeholder="••••••••" />
+        </div>
+        <span class="field-error" id="loginError"></span>
+      </div>
+
+      <button class="btn-submit" id="loginBtn">
+        <span class="btn-label">Enter Panel</span>
+        <span class="btn-spinner" hidden>
+          <svg viewBox="0 0 24 24" class="spin"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="40 60"/></svg>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       ADMIN DASHBOARD (hidden until login)
+  ══════════════════════════════════════ -->
+  <div id="adminDash" class="admin-dash" hidden>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo-placeholder small">
+        <span class="logo-icon">✦</span>
+        <span class="logo-text">Organiser</span>
+      </div>
+
+      <nav class="side-nav">
+        <a href="#overview"     class="side-link active" data-tab="overview">📊 Overview</a>
+        <a href="#participants" class="side-link"        data-tab="participants">👥 Participants</a>
+        <a href="#winners"      class="side-link"        data-tab="winners">🏆 Winners</a>
+      </nav>
+
+      <button class="btn-logout" id="logoutBtn">← Log Out</button>
+    </aside>
+
+    <!-- Main content -->
+    <div class="dash-content">
+
+      <!-- ── TAB: OVERVIEW ── -->
+      <section id="tab-overview" class="tab-panel active">
+        <header class="dash-header">
+          <h1>Dashboard</h1>
+          <span class="badge-live"><span class="pulse-dot"></span>Live</span>
+        </header>
+
+        <!-- Stats row -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <span class="stat-label">Total Entries</span>
+            <span class="stat-value" id="statTotal">—</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Unique Participants</span>
+            <span class="stat-value" id="statUnique">—</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Winners Drawn</span>
+            <span class="stat-value" id="statWinners">—</span>
+          </div>
+        </div>
+
+        <!-- Recent entries -->
+        <div class="dash-section">
+          <h3>Recent Entries</h3>
+          <div class="table-wrap">
+            <table id="recentTable">
+              <thead><tr><th>Name</th><th>Email</th><th>Submitted</th></tr></thead>
+              <tbody id="recentBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Draw section -->
+        <div class="draw-box">
+          <h3>Lucky Draw</h3>
+          <p>Click the button to randomly select one eligible winner from all valid entries.</p>
+          <label class="spin-toggle">
+            <input type="checkbox" id="useWheelChk" checked />
+            Show spinning wheel animation
+          </label>
+          <button class="btn-draw" id="drawBtn">
+            🎰 Draw a Winner
+          </button>
+          <div id="winnerAnnounce" class="winner-announce" hidden></div>
+        </div>
+      </section>
+
+      <!-- ── TAB: PARTICIPANTS ── -->
+      <section id="tab-participants" class="tab-panel">
+        <header class="dash-header">
+          <h1>Participants</h1>
+          <button class="btn-export" id="exportParticipantsBtn">⬇ Export CSV</button>
+        </header>
+
+        <div class="search-bar">
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input type="text" id="searchInput" placeholder="Search by name or email…" />
+        </div>
+
+        <div class="table-wrap">
+          <table id="participantsTable">
+            <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Submitted</th></tr></thead>
+            <tbody id="participantsBody"></tbody>
+          </table>
+        </div>
+        <p class="table-count" id="participantCount"></p>
+      </section>
+
+      <!-- ── TAB: WINNERS ── -->
+      <section id="tab-winners" class="tab-panel">
+        <header class="dash-header">
+          <h1>Winner History</h1>
+          <button class="btn-export" id="exportWinnersBtn">⬇ Export CSV</button>
+        </header>
+
+        <div class="table-wrap">
+          <table id="winnersTable">
+            <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Drawn At</th></tr></thead>
+            <tbody id="winnersBody"></tbody>
+          </table>
+        </div>
+        <p class="table-count" id="winnerCount"></p>
+      </section>
+
+    </div><!-- /dash-content -->
+  </div><!-- /adminDash -->
+
+  <!-- ══════════════════════════════════════
+       SPINNING WHEEL MODAL
+  ══════════════════════════════════════ -->
+  <div id="wheelModal" class="wheel-modal" hidden>
+    <div class="wheel-modal-inner">
+      <h3>Drawing Winner…</h3>
+      <div class="wheel-container">
+        <canvas id="wheelCanvas" width="320" height="320"></canvas>
+        <div class="wheel-pointer">▼</div>
+      </div>
+      <p id="wheelStatus">Spinning…</p>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/wheel.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
