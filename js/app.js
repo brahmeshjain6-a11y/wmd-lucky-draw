@@ -153,11 +153,11 @@
         timestamp: new Date().toISOString(),
       };
 
-      const res  = await fetch(CONFIG.SCRIPT_URL, {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify(payload),
-      });
+      const res = await fetch(CONFIG.SCRIPT_URL, {
+  method: "POST",
+  redirect: "follow",
+  body: JSON.stringify(payload),
+});
 
       const data = await res.json();
 
