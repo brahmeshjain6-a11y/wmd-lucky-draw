@@ -386,4 +386,11 @@ document.getElementById('adminDash').hidden = true;
     if (adminDash.hidden) return;
     await loadDashboard();
   }, 60_000);
+  /* Force login gate on page load */
+window.addEventListener('DOMContentLoaded', () => {
+  const loginGate = document.getElementById('loginGate');
+  const adminDash = document.getElementById('adminDash');
+  if (loginGate) loginGate.hidden = false;
+  if (adminDash) adminDash.hidden = true;
+});
 })();
