@@ -19,6 +19,9 @@
   let participants = [];   // All entries from sheet
   let winners      = [];   // Winner history from sheet
   let authToken    = "";   // Echoed from backend on login
+  // Show login gate on load
+document.getElementById('loginGate').hidden = false;
+document.getElementById('adminDash').hidden = true;
 
   /* ════════════════════════════════
      DOM REFS
