@@ -100,31 +100,31 @@ document.getElementById('adminDash').hidden = true;
     loginError.textContent = "";
 
     setLoginLoading(true);
+
+    /* First check password locally */
+    if (pass !== CONFIG.ADMIN_PASSWORD) {
+      loginError.textContent = "Incorrect password. Please try again.";
+      setLoginLoading(false);
+      return;
+    }
+
+    /* Password correct — show dashboard */
+    loginGate.hidden = true;
+    adminDash.hidden = false;
+    adminDash.style.display = "flex";
+
+    /* Try to get token from backend (optional) */
     try {
       const data = await apiRequest({ action: "adminLogin", password: pass });
       if (data.status === "success") {
         authToken = data.token || "";
-        loginGate.hidden  = true;
-        adminDash.hidden  = false;
-        await loadDashboard();
-      } else {
-        loginError.textContent = "Incorrect password. Please try again.";
       }
-    } catch (err) {
-      // Fallback: allow local password check when script isn't set up yet
-      if (pass === CONFIG.ADMIN_PASSWORD) {
-        loginGate.hidden = true;
-        adminDash.hidden = false;
-        loginError.textContent = "";
-        await loadDashboard();
-      } else {
-        loginError.textContent = err.message.includes("not configured")
-          ? "⚙️ Script URL not configured — check js/config.js"
-          : "Incorrect password.";
-      }
-    } finally {
-      setLoginLoading(false);
+    } catch (_) {
+      /* Backend unavailable — continue without token */
     }
+
+    await loadDashboard();
+    setLoginLoading(false);
   });
 
   adminPassEl.addEventListener("keydown", e => {
