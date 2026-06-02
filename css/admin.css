@@ -353,6 +353,10 @@ tbody td { padding: 0.65rem 0.8rem; color: var(--text); }
   justify-content: center;
   animation: fadeIn 0.3s ease;
 }
+
+.wheel-modal.active {
+  display: flex;
+}
 .wheel-modal-inner {
   text-align: center;
   padding: 2.5rem 2rem;
