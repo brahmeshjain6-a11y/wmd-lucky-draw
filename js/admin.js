@@ -1,31 +1,16 @@
 /**
- * admin.js
- * ══════════════════════════════════════════════════════════════
- * Organiser dashboard logic:
- *   • Password-protected login
- *   • Stats, participant table, winner history
- *   • Lucky draw (with optional wheel animation)
- *   • CSV export
- *   • Live search
- * ══════════════════════════════════════════════════════════════
+ * admin.js — Fixed version with reliable login flow
  */
 
 (function () {
   "use strict";
 
-  /* ════════════════════════════════
-     STATE
-  ════════════════════════════════ */
-  let participants = [];   // All entries from sheet
-  let winners      = [];   // Winner history from sheet
-  let authToken    = "";   // Echoed from backend on login
-  // Show login gate on load
-document.getElementById('loginGate').hidden = false;
-document.getElementById('adminDash').hidden = true;
+  /* ── State ── */
+  let participants = [];
+  let winners      = [];
+  let authToken    = "";
 
-  /* ════════════════════════════════
-     DOM REFS
-  ════════════════════════════════ */
+  /* ── DOM refs ── */
   const loginGate    = document.getElementById("loginGate");
   const adminDash    = document.getElementById("adminDash");
   const loginBtn     = document.getElementById("loginBtn");
@@ -48,10 +33,25 @@ document.getElementById('adminDash').hidden = true;
   const exportParticipantsBtn = document.getElementById("exportParticipantsBtn");
   const exportWinnersBtn      = document.getElementById("exportWinnersBtn");
 
-  /* ════════════════════════════════
-     HELPERS
-  ════════════════════════════════ */
+  /* ── Force correct initial state ── */
+  function showLoginGate() {
+    loginGate.style.display = "flex";
+    loginGate.hidden = false;
+    adminDash.style.display = "none";
+    adminDash.hidden = true;
+  }
 
+  function showDashboard() {
+    loginGate.style.display = "none";
+    loginGate.hidden = true;
+    adminDash.style.display = "flex";
+    adminDash.hidden = false;
+  }
+
+  /* Show login on load */
+  showLoginGate();
+
+  /* ── Helpers ── */
   function sanitize(str) {
     return String(str || "").replace(/<[^>]*>/g, "").replace(/[<>"'`]/g, "").trim().slice(0, 300);
   }
@@ -74,20 +74,17 @@ document.getElementById('adminDash').hidden = true;
   }
 
   function apiRequest(payload) {
-  if (!CONFIG.SCRIPT_URL || CONFIG.SCRIPT_URL.includes("YOUR_GOOGLE")) {
-    return Promise.reject(new Error("Script URL not configured."));
+    if (!CONFIG.SCRIPT_URL || CONFIG.SCRIPT_URL.includes("YOUR_GOOGLE")) {
+      return Promise.reject(new Error("Script URL not configured."));
+    }
+    return fetch(CONFIG.SCRIPT_URL, {
+      method: "POST",
+      redirect: "follow",
+      body: JSON.stringify({ ...payload, token: authToken }),
+    }).then(r => r.json());
   }
-  return fetch(CONFIG.SCRIPT_URL, {
-    method: "POST",
-    redirect: "follow",
-    body: JSON.stringify({ ...payload, token: authToken }),
-  }).then(r => r.json());
-}
 
-  /* ════════════════════════════════
-     LOGIN / LOGOUT
-  ════════════════════════════════ */
-
+  /* ── Login ── */
   function setLoginLoading(on) {
     loginBtn.disabled = on;
     loginBtn.querySelector(".btn-label").hidden = on;
@@ -96,32 +93,28 @@ document.getElementById('adminDash').hidden = true;
 
   loginBtn.addEventListener("click", async () => {
     const pass = sanitize(adminPassEl.value);
-    if (!pass) { loginError.textContent = "Password is required."; return; }
+    if (!pass) {
+      loginError.textContent = "Password is required.";
+      return;
+    }
     loginError.textContent = "";
-
     setLoginLoading(true);
 
-    /* First check password locally */
+    /* Check password locally first */
     if (pass !== CONFIG.ADMIN_PASSWORD) {
       loginError.textContent = "Incorrect password. Please try again.";
       setLoginLoading(false);
       return;
     }
 
-    /* Password correct — show dashboard */
-    loginGate.hidden = true;
-    adminDash.hidden = false;
-    adminDash.style.display = "flex";
+    /* Show dashboard immediately */
+    showDashboard();
 
-    /* Try to get token from backend (optional) */
+    /* Try backend for token */
     try {
       const data = await apiRequest({ action: "adminLogin", password: pass });
-      if (data.status === "success") {
-        authToken = data.token || "";
-      }
-    } catch (_) {
-      /* Backend unavailable — continue without token */
-    }
+      if (data.status === "success") authToken = data.token || "";
+    } catch (_) { /* continue without token */ }
 
     await loadDashboard();
     setLoginLoading(false);
@@ -131,19 +124,16 @@ document.getElementById('adminDash').hidden = true;
     if (e.key === "Enter") loginBtn.click();
   });
 
+  /* ── Logout ── */
   logoutBtn.addEventListener("click", () => {
     authToken = "";
     participants = [];
     winners = [];
-    loginGate.hidden  = false;
-    adminDash.hidden  = true;
     adminPassEl.value = "";
+    showLoginGate();
   });
 
-  /* ════════════════════════════════
-     SIDEBAR TABS
-  ════════════════════════════════ */
-
+  /* ── Tabs ── */
   document.querySelectorAll(".side-link[data-tab]").forEach(link => {
     link.addEventListener("click", e => {
       e.preventDefault();
@@ -156,10 +146,7 @@ document.getElementById('adminDash').hidden = true;
     });
   });
 
-  /* ════════════════════════════════
-     LOAD DASHBOARD DATA
-  ════════════════════════════════ */
-
+  /* ── Load dashboard ── */
   async function loadDashboard() {
     await Promise.all([loadParticipants(), loadWinners()]);
     refreshOverview();
@@ -172,8 +159,7 @@ document.getElementById('adminDash').hidden = true;
         participants = data.entries || [];
         renderParticipantsTable(participants);
       }
-    } catch (err) {
-      // In demo/unconfigured mode, show placeholder rows
+    } catch (_) {
       participants = [];
       renderParticipantsTable([]);
     }
@@ -192,16 +178,12 @@ document.getElementById('adminDash').hidden = true;
     }
   }
 
-  /* ════════════════════════════════
-     OVERVIEW TAB
-  ════════════════════════════════ */
-
+  /* ── Overview ── */
   function refreshOverview() {
     statTotal.textContent   = participants.length;
     statUnique.textContent  = new Set(participants.map(p => p.email)).size;
     statWinners.textContent = winners.length;
 
-    // Show latest 5 in Recent table
     const recent = [...participants].reverse().slice(0, 5);
     recentBody.innerHTML = recent.map(p => `
       <tr>
@@ -212,10 +194,7 @@ document.getElementById('adminDash').hidden = true;
     `).join("") || `<tr><td colspan="3" style="color:var(--text-muted);text-align:center">No entries yet</td></tr>`;
   }
 
-  /* ════════════════════════════════
-     PARTICIPANTS TAB
-  ════════════════════════════════ */
-
+  /* ── Participants ── */
   function renderParticipantsTable(data) {
     participantsBody.innerHTML = data.map((p, i) => `
       <tr>
@@ -232,20 +211,14 @@ document.getElementById('adminDash').hidden = true;
 
   searchInput.addEventListener("input", () => {
     const q = searchInput.value.toLowerCase().trim();
-    if (!q) {
-      renderParticipantsTable(participants);
-      return;
-    }
+    if (!q) { renderParticipantsTable(participants); return; }
     const filtered = participants.filter(p =>
       p.name.toLowerCase().includes(q) || p.email.toLowerCase().includes(q)
     );
     renderParticipantsTable(filtered);
   });
 
-  /* ════════════════════════════════
-     WINNERS TAB
-  ════════════════════════════════ */
-
+  /* ── Winners ── */
   function renderWinnersTable(data) {
     winnersBody.innerHTML = data.map((w, i) => `
       <tr>
@@ -260,39 +233,31 @@ document.getElementById('adminDash').hidden = true;
       : "";
   }
 
-  /* ════════════════════════════════
-     LUCKY DRAW
-  ════════════════════════════════ */
-
+  /* ── Lucky Draw ── */
   drawBtn.addEventListener("click", async () => {
     if (participants.length === 0) {
       alert("There are no participants to draw from.");
       return;
     }
 
-    /* Identify already-won emails so we don't repeat */
     const wonEmails = new Set(winners.map(w => w.email.toLowerCase()));
     const eligible  = participants.filter(p => !wonEmails.has(p.email.toLowerCase()));
 
     if (eligible.length === 0) {
-      alert("All registered participants have already been drawn as winners.");
+      alert("All participants have already been drawn as winners.");
       return;
     }
 
     drawBtn.disabled = true;
     winnerAnnounce.hidden = true;
 
-    /* ── Select winner locally (fair random) ── */
     const winnerIdx = Math.floor(Math.random() * eligible.length);
     const winner    = eligible[winnerIdx];
-
-    const useWheel = useWheelChk && useWheelChk.checked;
+    const useWheel  = useWheelChk && useWheelChk.checked;
 
     if (useWheel && typeof WheelSpin !== "undefined") {
-      /* Show wheel with participant names (cap at 20 for readability) */
       const labels = eligible.slice(0, 20).map(p => p.name);
-      const wheelWinnerIdx = eligible.indexOf(winner) % labels.length;
-
+      const wheelWinnerIdx = winnerIdx % labels.length;
       WheelSpin.show(labels);
       WheelSpin.spin(wheelWinnerIdx, async () => {
         WheelSpin.hide();
@@ -305,26 +270,15 @@ document.getElementById('adminDash').hidden = true;
 
   async function saveAndAnnounceWinner(winner) {
     const drawnAt = new Date().toISOString();
-
-    /* Save to backend */
     try {
-      await apiRequest({
-        action:  "saveWinner",
-        name:    winner.name,
-        email:   winner.email,
-        drawnAt,
-      });
-    } catch (_) {
-      /* If backend unavailable, at least display locally */
-    }
+      await apiRequest({ action: "saveWinner", name: winner.name, email: winner.email, drawnAt });
+    } catch (_) { /* display locally anyway */ }
 
-    /* Add to local winners list */
     const winnerRecord = { name: winner.name, email: winner.email, drawnAt };
     winners.unshift(winnerRecord);
     renderWinnersTable(winners);
     refreshOverview();
 
-    /* Announce */
     winnerAnnounce.hidden = false;
     winnerAnnounce.innerHTML = `
       <div class="w-label">🏆 &nbsp; Winner Drawn</div>
@@ -337,10 +291,7 @@ document.getElementById('adminDash').hidden = true;
     drawBtn.disabled = false;
   }
 
-  /* ════════════════════════════════
-     CSV EXPORT
-  ════════════════════════════════ */
-
+  /* ── CSV Export ── */
   function toCSV(rows, headers) {
     const escape = v => `"${String(v || "").replace(/"/g, '""')}"`;
     const lines  = [headers.map(escape).join(",")];
@@ -352,8 +303,7 @@ document.getElementById('adminDash').hidden = true;
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement("a");
-    a.href     = url;
-    a.download = filename;
+    a.href = url; a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -362,35 +312,24 @@ document.getElementById('adminDash').hidden = true;
 
   exportParticipantsBtn.addEventListener("click", () => {
     if (!participants.length) { alert("No participants to export."); return; }
-    const csv = toCSV(
+    downloadCSV(toCSV(
       participants.map(p => [p.name, p.email, p.timestamp]),
       ["Full Name", "Email Address", "Submitted At"]
-    );
-    downloadCSV(csv, "wmd-participants.csv");
+    ), "wmd-participants.csv");
   });
 
   exportWinnersBtn.addEventListener("click", () => {
     if (!winners.length) { alert("No winners to export."); return; }
-    const csv = toCSV(
+    downloadCSV(toCSV(
       winners.map(w => [w.name, w.email, w.drawnAt]),
       ["Winner Name", "Email Address", "Drawn At"]
-    );
-    downloadCSV(csv, "wmd-winners.csv");
+    ), "wmd-winners.csv");
   });
 
-  /* ════════════════════════════════
-     AUTO-REFRESH (every 60 s)
-  ════════════════════════════════ */
-
+  /* ── Auto refresh ── */
   setInterval(async () => {
-    if (adminDash.hidden) return;
+    if (adminDash.style.display === "none") return;
     await loadDashboard();
   }, 60_000);
-  /* Force login gate on page load */
-window.addEventListener('DOMContentLoaded', () => {
-  const loginGate = document.getElementById('loginGate');
-  const adminDash = document.getElementById('adminDash');
-  if (loginGate) loginGate.hidden = false;
-  if (adminDash) adminDash.hidden = true;
-});
+
 })();
