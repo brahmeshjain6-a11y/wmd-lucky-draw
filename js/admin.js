@@ -1,5 +1,5 @@
 /**
- * admin.js — Fixed version with reliable login flow
+ * admin.js — Fixed version with reliable login flow and correct wheel sync
  */
 
 (function () {
@@ -100,21 +100,18 @@
     loginError.textContent = "";
     setLoginLoading(true);
 
-    /* Check password locally first */
     if (pass !== CONFIG.ADMIN_PASSWORD) {
       loginError.textContent = "Incorrect password. Please try again.";
       setLoginLoading(false);
       return;
     }
 
-    /* Show dashboard immediately */
     showDashboard();
 
-    /* Try backend for token */
     try {
       const data = await apiRequest({ action: "adminLogin", password: pass });
       if (data.status === "success") authToken = data.token || "";
-    } catch (_) { /* continue without token */ }
+    } catch (_) {}
 
     await loadDashboard();
     setLoginLoading(false);
@@ -256,30 +253,28 @@
     const useWheel  = useWheelChk && useWheelChk.checked;
 
     if (useWheel && typeof WheelSpin !== "undefined") {
-      // Use only the eligible list sliced to 20
-      // Make sure winner is always in that slice
       const maxSlice = Math.min(eligible.length, 20);
-      let labels = eligible.slice(0, maxSlice).map(p => p.name);
-
-      // Ensure winner is within the displayed slice
+      const labels = eligible.slice(0, maxSlice).map(p => p.name);
       let wheelWinnerIdx = winnerIdx;
       if (winnerIdx >= maxSlice) {
-        // Swap winner into position 0 of the slice
         labels[0] = winner.name;
         wheelWinnerIdx = 0;
       }
-
       WheelSpin.show(labels);
       WheelSpin.spin(wheelWinnerIdx, async () => {
         WheelSpin.hide();
         await saveAndAnnounceWinner(winner);
       });
+    } else {
+      await saveAndAnnounceWinner(winner);
+    }
+  });
 
   async function saveAndAnnounceWinner(winner) {
     const drawnAt = new Date().toISOString();
     try {
       await apiRequest({ action: "saveWinner", name: winner.name, email: winner.email, drawnAt });
-    } catch (_) { /* display locally anyway */ }
+    } catch (_) {}
 
     const winnerRecord = { name: winner.name, email: winner.email, drawnAt };
     winners.unshift(winnerRecord);
@@ -333,7 +328,7 @@
     ), "wmd-winners.csv");
   });
 
-  /* ── Auto refresh ── */
+  /* ── Auto refresh every 60s ── */
   setInterval(async () => {
     if (adminDash.style.display === "none") return;
     await loadDashboard();
