@@ -143,8 +143,11 @@ const WheelSpin = (function () {
       segments = segs.length > 0 ? segs : ["?"];
       currentAngle = 0;
       const modal = MODAL();
-      if (modal) { modal.hidden = false; }
-      // Small delay to let modal render before drawing
+      if (modal) {
+        modal.hidden = false;
+        modal.classList.add("active");
+        modal.style.display = "flex";
+      }
       setTimeout(() => drawWheel(0), 100);
     },
     spin(winnerIndex, onDone) {
@@ -153,7 +156,11 @@ const WheelSpin = (function () {
     hide() {
       if (rafId) cancelAnimationFrame(rafId);
       const modal = MODAL();
-      if (modal) modal.hidden = true;
+      if (modal) {
+        modal.hidden = true;
+        modal.classList.remove("active");
+        modal.style.display = "none";
+      }
     },
   };
 })();
