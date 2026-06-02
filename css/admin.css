@@ -45,7 +45,7 @@
    DASHBOARD LAYOUT
 ════════════════════════════════ */
 .admin-dash {
-  display: flex;
+  display: none;
   height: 100vh;
   overflow: hidden;
   animation: fadeIn 0.4s ease;
@@ -348,7 +348,7 @@ tbody td { padding: 0.65rem 0.8rem; color: var(--text); }
   background: rgba(8,12,24,0.85);
   backdrop-filter: blur(10px);
   z-index: 500;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.3s ease;
