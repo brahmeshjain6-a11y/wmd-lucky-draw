@@ -256,17 +256,24 @@
     const useWheel  = useWheelChk && useWheelChk.checked;
 
     if (useWheel && typeof WheelSpin !== "undefined") {
-      const labels = eligible.slice(0, 20).map(p => p.name);
-      const wheelWinnerIdx = winnerIdx % labels.length;
+      // Use only the eligible list sliced to 20
+      // Make sure winner is always in that slice
+      const maxSlice = Math.min(eligible.length, 20);
+      let labels = eligible.slice(0, maxSlice).map(p => p.name);
+
+      // Ensure winner is within the displayed slice
+      let wheelWinnerIdx = winnerIdx;
+      if (winnerIdx >= maxSlice) {
+        // Swap winner into position 0 of the slice
+        labels[0] = winner.name;
+        wheelWinnerIdx = 0;
+      }
+
       WheelSpin.show(labels);
       WheelSpin.spin(wheelWinnerIdx, async () => {
         WheelSpin.hide();
         await saveAndAnnounceWinner(winner);
       });
-    } else {
-      await saveAndAnnounceWinner(winner);
-    }
-  });
 
   async function saveAndAnnounceWinner(winner) {
     const drawnAt = new Date().toISOString();
