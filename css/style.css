@@ -340,7 +340,7 @@ header, main, .login-gate, .admin-dash { position: relative; z-index: 1; }
 @keyframes rotate { to { transform: rotate(360deg); } }
 
 /* ── Status Messages ── */
-.status-msg {
+.status-msg:not([hidden]) {
   display: flex;
   align-items: flex-start;
   gap: 0.8rem;
