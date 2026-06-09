@@ -219,13 +219,14 @@
 
   /* ── Winners ── */
   function renderWinnersTable(data) {
-    winnersBody.innerHTML = data.map((w, i) => `
-      <tr>
-        <td>${i + 1}</td>
-        <td>${escapeHtml(w.name)}</td>
-        <td>${escapeHtml(w.email)}</td>
-        <td>${formatDate(w.drawnAt)}</td>
-      </tr>
+  winnersBody.innerHTML = data.map((w, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${escapeHtml(w.name)}</td>
+      <td>${escapeHtml(w.email)}</td>
+      <td>${escapeHtml(w.phone || "—")}</td>
+      <td>${formatDate(w.drawnAt)}</td>
+    </tr>
     `).join("") || `<tr><td colspan="4" style="color:var(--text-muted);text-align:center">No winners yet</td></tr>`;
     winnerCount.textContent = data.length
       ? `${data.length} winner${data.length !== 1 ? "s" : ""} drawn`
@@ -273,9 +274,9 @@
   });
 
   async function saveAndAnnounceWinner(winner) {
-    const drawnAt = new Date().toISOString();
-    try {
-      await apiRequest({ action: "saveWinner", name: winner.name, email: winner.email, drawnAt });
+  const drawnAt = new Date().toISOString();
+  try {
+    await apiRequest({ action: "saveWinner", name: winner.name, email: winner.email, phone: winner.phone, drawnAt });
     } catch (_) {}
 
     const winnerRecord = { name: winner.name, email: winner.email, drawnAt };
@@ -323,12 +324,12 @@
 });
 
   exportWinnersBtn.addEventListener("click", () => {
-    if (!winners.length) { alert("No winners to export."); return; }
-    downloadCSV(toCSV(
-      winners.map(w => [w.name, w.email, w.drawnAt]),
-      ["Winner Name", "Email Address", "Drawn At"]
-    ), "wmd-winners.csv");
-  });
+  if (!winners.length) { alert("No winners to export."); return; }
+  downloadCSV(toCSV(
+    winners.map(w => [w.name, w.email, w.phone || "—", w.drawnAt]),
+    ["Winner Name", "Email Address", "Phone Number", "Drawn At"]
+  ), "wmd-winners.csv");
+});
 
   /* ── Auto refresh every 60s ── */
   setInterval(async () => {
