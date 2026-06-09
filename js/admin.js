@@ -186,6 +186,7 @@
       <tr>
         <td>${escapeHtml(p.name)}</td>
         <td>${escapeHtml(p.email)}</td>
+        <td>${escapeHtml(p.phone || "—")}</td>
         <td>${formatDate(p.timestamp)}</td>
       </tr>
     `).join("") || `<tr><td colspan="3" style="color:var(--text-muted);text-align:center">No entries yet</td></tr>`;
@@ -313,13 +314,13 @@
     URL.revokeObjectURL(url);
   }
 
-  exportParticipantsBtn.addEventListener("click", () => {
-    if (!participants.length) { alert("No participants to export."); return; }
-    downloadCSV(toCSV(
-      participants.map(p => [p.name, p.email, p.timestamp]),
-      ["Full Name", "Email Address", "Submitted At"]
-    ), "wmd-participants.csv");
-  });
+ exportParticipantsBtn.addEventListener("click", () => {
+  if (!participants.length) { alert("No participants to export."); return; }
+  downloadCSV(toCSV(
+    participants.map(p => [p.name, p.email, p.phone || "—", p.timestamp]),
+    ["Full Name", "Email Address", "Phone Number", "Submitted At"]
+  ), "wmd-participants.csv");
+});
 
   exportWinnersBtn.addEventListener("click", () => {
     if (!winners.length) { alert("No winners to export."); return; }
