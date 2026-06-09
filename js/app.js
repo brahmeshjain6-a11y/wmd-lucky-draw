@@ -143,6 +143,13 @@ phoneInput.addEventListener("blur", () => {
     const rawName  = sanitize(nameInput.value);
 const rawEmail = sanitize(emailInput.value).toLowerCase();
 const rawPhone = sanitize(phoneInput.value);
+     /* Explicit phone check — ADDED HERE */
+  if (!rawPhone || rawPhone.trim().length === 0) {
+    setFieldState(phoneGroup, phoneErr, "Phone number is required.");
+    return;
+  }
+
+  /* Client-side validation */
 
 const nameErrMsg  = validateName(rawName);
 const emailErrMsg = validateEmail(rawEmail);
