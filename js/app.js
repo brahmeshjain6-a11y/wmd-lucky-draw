@@ -19,6 +19,9 @@
   const emailGroup = document.getElementById("emailGroup");
   const nameErr    = document.getElementById("nameError");
   const emailErr   = document.getElementById("emailError");
+  const phoneInput = document.getElementById("phoneAddr");
+  const phoneGroup = document.getElementById("phoneGroup");
+  const phoneErr   = document.getElementById("phoneError");
   const submitBtn  = document.getElementById("submitBtn");
   const btnLabel   = submitBtn.querySelector(".btn-label");
   const btnSpinner = submitBtn.querySelector(".btn-spinner");
@@ -62,7 +65,15 @@
     if (val.length > 200) return "Email address is too long.";
     return "";
   }
-
+function validatePhone(val) {
+  if (!val) return "Phone number is required.";
+  // Simple validation: at least 10 digits
+  const digitsOnly = val.replace(/\D/g, "");
+  if (digitsOnly.length < 10) return "Phone number must have at least 10 digits.";
+  if (val.length > 11) return "Phone number is too long.";
+  return "";
+}
+  
   function setFieldState(group, errEl, errMsg) {
     if (errMsg) {
       group.classList.add("invalid");
@@ -80,7 +91,9 @@
   emailInput.addEventListener("blur", () => {
     setFieldState(emailGroup, emailErr, validateEmail(sanitize(emailInput.value)));
   });
-
+phoneInput.addEventListener("blur", () => {
+  setFieldState(phoneGroup, phoneErr, validatePhone(sanitize(phoneInput.value)));
+});
   /* Clear errors on input */
   nameInput.addEventListener("input", () => {
     if (nameGroup.classList.contains("invalid"))
@@ -128,14 +141,16 @@
     hideMessages();
 
     const rawName  = sanitize(nameInput.value);
-    const rawEmail = sanitize(emailInput.value).toLowerCase();
+const rawEmail = sanitize(emailInput.value).toLowerCase();
+const rawPhone = sanitize(phoneInput.value);
 
-    /* Client-side validation */
-    const nameErrMsg  = validateName(rawName);
-    const emailErrMsg = validateEmail(rawEmail);
-    setFieldState(nameGroup,  nameErr,  nameErrMsg);
-    setFieldState(emailGroup, emailErr, emailErrMsg);
-    if (nameErrMsg || emailErrMsg) return;
+const nameErrMsg  = validateName(rawName);
+const emailErrMsg = validateEmail(rawEmail);
+const phoneErrMsg = validatePhone(rawPhone);
+setFieldState(nameGroup,  nameErr,  nameErrMsg);
+setFieldState(emailGroup, emailErr, emailErrMsg);
+setFieldState(phoneGroup, phoneErr, phoneErrMsg);
+if (nameErrMsg || emailErrMsg || phoneErrMsg) return;
 
     /* Check config */
     if (!CONFIG.SCRIPT_URL || CONFIG.SCRIPT_URL.includes("YOUR_GOOGLE")) {
@@ -150,6 +165,7 @@
         action:    "register",
         name:      rawName,
         email:     rawEmail,
+        phone:     rawPhone,
         timestamp: new Date().toISOString(),
       };
 
