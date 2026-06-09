@@ -192,14 +192,15 @@
   }
 
   /* ── Participants ── */
-  function renderParticipantsTable(data) {
-    participantsBody.innerHTML = data.map((p, i) => `
-      <tr>
-        <td>${i + 1}</td>
-        <td>${escapeHtml(p.name)}</td>
-        <td>${escapeHtml(p.email)}</td>
-        <td>${formatDate(p.timestamp)}</td>
-      </tr>
+ function renderParticipantsTable(data) {
+  participantsBody.innerHTML = data.map((p, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${escapeHtml(p.name)}</td>
+      <td>${escapeHtml(p.email)}</td>
+      <td>${escapeHtml(p.phone || "—")}</td>
+      <td>${formatDate(p.timestamp)}</td>
+    </tr>
     `).join("") || `<tr><td colspan="4" style="color:var(--text-muted);text-align:center">No participants yet</td></tr>`;
     participantCount.textContent = data.length
       ? `Showing ${data.length} participant${data.length !== 1 ? "s" : ""}`
