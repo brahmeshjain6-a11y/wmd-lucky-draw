@@ -146,10 +146,10 @@ function getSheet(tabName) {
   if (!sheet) {
     sheet = ss.insertSheet(tabName);
     if (tabName === TAB_ENTRIES) {
-      sheet.appendRow(["Name", "Email", "Timestamp"]);
+      sheet.appendRow(["Name", "Email", "Phone", "Timestamp"]);
       sheet.getRange(1, 1, 1, 3).setFontWeight("bold");
     } else if (tabName === TAB_WINNERS) {
-      sheet.appendRow(["Name", "Email", "Drawn At"]);
+      sheet.appendRow(["Name", "Email", "Phone","Drawn At"]);
       sheet.getRange(1, 1, 1, 3).setFontWeight("bold");
     }
   }
@@ -162,24 +162,26 @@ function getSheet(tabName) {
 function handleRegister(payload) {
   const name  = sanitizeInput(payload.name  || "");
   const email = sanitizeInput((payload.email || "").toLowerCase());
+  const phone = sanitizeInput(payload.phone || "");
 
   /* Validation */
   if (!name || name.length < 2)   throw new Error("Invalid name.");
   if (!isValidEmail(email))       throw new Error("Invalid email address.");
+  if (!phone || phone.length < 10) throw new Error("Invalid phone number.");
 
   const sheet = getSheet(TAB_ENTRIES);
   const data  = sheet.getDataRange().getValues();
 
-  /* Check for duplicate email (skip header row) */
+  /* Check for duplicate email */
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][1]).toLowerCase() === email) {
       return { status: "duplicate", message: "Email already registered." };
     }
   }
 
-  /* Append row */
+  /* Append row with phone */
   const ts = new Date().toISOString();
-  sheet.appendRow([name, email, ts]);
+  sheet.appendRow([name, email, phone, ts]);
 
   return { status: "success", message: "Entry recorded." };
 }
